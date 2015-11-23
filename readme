@@ -1,0 +1,49 @@
+I general, follow installation guide at 
+http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/InstallationGuide/html/ 
+
+My final geant4 directory sturcture is 
+
+   +- ~/geant4 
+       +- geant4.10.01.p02/
+       +- geant4.10.01.p02-build/
+       +- geant4.10.01.p02-install/
+       +- projects/
+			 |	+- g4/
+			 |  +- g4-build/
+
+Hints for my Geant4 installation (Ubuntu 14.04): 
+
+1.)  Building Geant4
+
+At step 2.1, set the following cmake flags 
+
+	GEANT4_USE_OPENGL_X11=ON
+	GEANT4_INSTALL_DATA=ON 
+	GEANT4_USE_SYSTEM_EXPAT=OFF
+
+i.e., in geat4.10.01.p02-build, do 
+
+cmake -DGEANT4_USE_SYSTEM_EXPAT=OFF -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_OPENGL_X11=ON -DCMAKE_INSTALL_PREFIX=../geant4.10.01.p02-install/ ../geant4.10.01.p02
+
+2.)  After installing
+
+At step 3.1, do 
+
+:cd ~/geant4/geant4.10.01.p02-install/bin/
+:source geant4.sh
+
+this will set environmental variables necessary for geant4 to find datasets
+
+3.)  Building project g4
+
+in ~/geant4/projects/g4-build do 
+
+:cmake -DGeant4_DIR=~/geant4/geant4.10.01.p02-install/lib/Geant4-10.1.2/ ../g4
+:make
+
+4.)  Simulation specified in g4.in.  To run
+
+in ~/geant4/projects/g4-build do 
+
+:source ~/geant4/geant4.10.01.p02-install/bin/geant4.sh
+:./g4 g4.in
