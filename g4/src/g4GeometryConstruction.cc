@@ -36,6 +36,7 @@
 #include "G4Material.hh"
 #include "G4Element.hh"
 #include "G4Box.hh"
+#include "G4Orb.hh"
 #include "G4Tubs.hh"
 #include "G4Sphere.hh"
 #include "G4LogicalVolume.hh"
@@ -59,150 +60,181 @@ g4GeometryConstruction::g4GeometryConstruction()
 
 g4GeometryConstruction::~g4GeometryConstruction()
 {
-	delete fStepLimit;
+  delete fStepLimit;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 G4VPhysicalVolume* g4GeometryConstruction::Construct()
 {
-	SetupGeometry();
+  SetupGeometry();
   return physWorld;
 }
 
 void g4GeometryConstruction::SetupGeometry() 
 {
 
-	// Get nist material manager
-	G4NistManager* nist = G4NistManager::Instance();
-	G4Material *Air = nist->FindOrBuildMaterial("G4_AIR");
-	G4Material *Plastic = 
+  // Get nist material manager
+  G4NistManager* nist = G4NistManager::Instance();
+  G4Material *Air = nist->FindOrBuildMaterial("G4_AIR");
+  G4Material *Plastic = 
      nist->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
-	G4Material *Vacuum = 
+  G4Material *NaI = 
+     nist->FindOrBuildMaterial("G4_SODIUM_IODIDE");
+  G4Material *Vacuum = 
      nist->FindOrBuildMaterial("G4_Galactic");
-	//G4Material *Pyrex = 
+  //G4Material *Pyrex = 
    //  nist->FindOrBuildMaterial("G4_Pyrex_Glass");
 
-	//option to swtich on/off checking of volume overlaps
-	G4bool checkOverlaps = false;
+  //option to swtich on/off checking of volume overlaps
+  G4bool checkOverlaps = false;
 
-	// Envelope size
-	G4double env_hx = 20.*cm;
-	G4double env_hy = 20.*cm;
-	G4double env_hz = 20.*cm;
+  // Envelope size
+  G4double env_hx = 20.*cm;
+  G4double env_hy = 20.*cm;
+  G4double env_hz = 20.*cm;
 
-	//
-	// World
-	//
+  G4double env_pRmax = 100.*cm;
 
-	G4double world_hx = 1.2*env_hx;
-	G4double world_hy = 1.2*env_hy;
-	G4double world_hz = 1.2*env_hz;
-	//G4Material* world_mat = Air;
-	G4Material* world_mat = Vacuum;
+  //
+  // World
+  //
 
-	G4Box* solidWorld 
-   	= new G4Box("World",                  //its name
-	               world_hx,                //its size	
-                 world_hy,
-                 world_hz);
+  G4double world_hx = 1.2*env_hx;
+  G4double world_hy = 1.2*env_hy;
+  G4double world_hz = 1.2*env_hz;
+
+  G4double world_pRmax = 1.2 * env_pRmax;
+  
+  //G4Material* world_mat = Air;
+  G4Material* world_mat = Vacuum;
+
+  //G4Box* solidWorld 
+  //   = new G4Box("World",                 //its name
+  //               world_hx,                //its size  
+  //               world_hy,
+  //               world_hz);
+
+  G4Orb* solidWorld
+      = new G4Orb("World",                   //its name
+                   world_pRmax);
 
   G4LogicalVolume* logicWorld
-	  = new G4LogicalVolume(solidWorld,     //its solid
-	                        world_mat,      //its material 
-                          "World");       //its name 
+      = new G4LogicalVolume(solidWorld,      //its solid
+                             world_mat,      //its material 
+                             "World");       //its name 
 
-	//G4VPhysicalVolume* physWorld
-	physWorld
+  //G4VPhysicalVolume* physWorld
+  physWorld
     = new G4PVPlacement(0,                //no rotation
-	                      G4ThreeVector(),  //at (0,0,0)
+                        G4ThreeVector(),  //at (0,0,0)
                         logicWorld,       //its logical volume
                         "World",          //its name
                         0,                //its mother volume
                         false,            //no boolean operation
                         0,                //its copy number
-	                      checkOverlaps);   //overlaps checking 
+                        checkOverlaps);   //overlaps checking 
  
 
-	//
-	// Envelope
-	//	
+  //
+  // Envelope
+  //  
 
-	G4Material *env_mat = Vacuum;
-	//G4Material *env_mat = Air;
+  G4Material *env_mat = Vacuum;
+  //G4Material *env_mat = Air;
 
-	G4Box* solidEnv
-	  = new G4Box("Envelope",                //its name
-	              env_hx,                    //its size 
-	              env_hy,
-	              env_hz);
+  //G4Box* solidEnv
+  //  = new G4Box("Envelope",                //its name
+  //              env_hx,                    //its size 
+  //              env_hy,
+  //              env_hz);
 
-	G4LogicalVolume* logicEnv
-	  = new G4LogicalVolume(solidEnv,        //its solid
+  G4Orb* solidEnv
+    = new G4Orb("Envelope",                //its name
+                env_pRmax);                //its size 
+
+  G4LogicalVolume* logicEnv
+    = new G4LogicalVolume(solidEnv,        //its solid
                           env_mat,         //its material
-	                        "Envelope");     //its name 
-		
+                          "Envelope");     //its name 
 
-	//G4VPhysicalVolume* physEnv = 
-	    new G4PVPlacement(0,                 //no rotation
-	                      G4ThreeVector(),   //translation (0,0,0)
-	                      logicEnv,          //its logical volume
+
+  //G4VPhysicalVolume* physEnv = 
+      new G4PVPlacement(0,                 //no rotation
+                        G4ThreeVector(),   //translation (0,0,0)
+                        logicEnv,          //its logical volume
                         "Envelope",        //its name
-	                      logicWorld,        //its mother (logical) volume
-	                      false,             //no boolean operations
+                        logicWorld,        //its mother (logical) volume
+                        false,             //no boolean operations
                         0,                 //its copy number 
-                        checkOverlaps);     //checkOverlap
+                        checkOverlaps);    //checkOverlap
 
 
-	//a physical world volume has been created and within that 
+  //a physical world volume has been created and within that 
   //world volume a physical envelope volume has been placed.
 
-	//
-	//	Silicon detector for S5K5CAG - Sensitive Detector
-	//	
+  //
+  //  Silicon detector for S5K5CAG - Sensitive Detector
+  //    
 
-	// sensitive detectors
-	G4String CMOSName = "g4/CMOS";
-	G4VSensitiveDetector* CMOS=new g4CMOS(CMOSName,"g4CMOSHitsCollection");
-	G4SDManager::GetSDMpointer()->AddNewDetector( CMOS );
+  // sensitive detectors
+  G4String CMOSName = "g4/CMOS";
+  G4VSensitiveDetector* CMOS=new g4CMOS(CMOSName,"g4CMOSHitsCollection");
+  G4SDManager::GetSDMpointer()->AddNewDetector( CMOS );
 
-	//!!!!!!!!!!!!!!!! Half length Values!!!!!
-	G4double cmos_hx = 0.5 * 2.54 *cm;
-	G4double cmos_hy = 0.5 * 2.54 *cm;
-	G4double cmos_hz = 1.0 * 2.54 *cm;
+  //!!!!!!!!!!!!!!!! Half length Values!!!!!
+  //G4double cmos_hx = 0.5 * 2.54 *cm;
+  //G4double cmos_hy = 0.5 * 2.54 *cm;
+  //G4double cmos_hz = 1.0 * 2.54 *cm;
 
-	G4Material *cmos_mat = Plastic;
-	
-	G4Box* solidCMOS
-	  = new G4Box("CMOS",                    //its name
-	              cmos_hx,                   //its size 
-	              cmos_hy,
-	              cmos_hz);
+	G4double large_pRmin = 0.0;
+	G4double large_pRmax = 2.5 * 2.54 * cm;
+	G4double large_pDz =   2.5 * 2.54 * cm;
+	G4double large_pSPhi =  0.0; 
+	G4double large_pDPhi =  2.0*pi;
 
-	G4LogicalVolume* logicCMOS
-	  = new G4LogicalVolume(solidCMOS,       //its solid
+  //G4Material *cmos_mat = Plastic;
+  G4Material *cmos_mat = Plastic;
+
+  //G4Box* solidCMOS
+  //  = new G4Box("CMOS",                    //its name
+  //              cmos_hx,                   //its size 
+  //              cmos_hy,
+  //              cmos_hz);
+  
+  G4Tubs* solidCMOS
+    = new G4Tubs("CMOS",                    //its name
+                large_pRmin,                //its size 
+                large_pRmax,
+                large_pDz,
+                large_pSPhi,
+                large_pDPhi);
+
+  G4LogicalVolume* logicCMOS
+    = new G4LogicalVolume(solidCMOS,       //its solid
                           cmos_mat,        //its material
-	                        "CMOS");         //its name 
+                          "CMOS");         //its name 
 
-	logicCMOS->SetSensitiveDetector( CMOS );
+  logicCMOS->SetSensitiveDetector( CMOS );
 
-	    new G4PVPlacement(0,                 //no rotation
-	                     G4ThreeVector(0,0,0),   //translation (0,0,0)
-	                      logicCMOS,         //its logical volume
-                        "CMOS",            //its name
-	                      logicEnv,      //its mother (logical) volume
-	                      false,             //no boolean operations
-                        0);//,             //its copy number 
-                        //checkOverlaps);    //checkOverlap
+      new G4PVPlacement(0,                     //no rotation
+                       G4ThreeVector(0,0,0),   //translation (0,0,0)
+                        logicCMOS,             //its logical volume
+                        "CMOS",                //its name
+                        logicEnv,              //its mother (logical) volume
+                        false,                 //no boolean operations
+                        0);//,                 //its copy number 
+                        //checkOverlaps);      //checkOverlap
 
-	//
-	// sets a max step length in the tracker region
+  //
+  // sets a max step length in the tracker region
 
-	G4double maxStep = cmos_hx/2;
-	fStepLimit = new G4UserLimits(maxStep); 
-	logicCMOS->SetUserLimits(fStepLimit);
+  //G4double maxStep = cmos_hx/2;
+  G4double maxStep = large_pDz/16;
+  fStepLimit = new G4UserLimits(maxStep); 
+  logicCMOS->SetUserLimits(fStepLimit);
 
-	//set colours of regions
+  //set colours of regions
   G4VisAttributes* aVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,0.0));
   logicCMOS->SetVisAttributes(aVisAtt);
   G4VisAttributes* bVisAtt= new G4VisAttributes(G4Colour(0,0,1.0));
@@ -211,17 +243,17 @@ void g4GeometryConstruction::SetupGeometry()
   logicWorld->SetVisAttributes(cVisAtt);
   //G4VisAttributes* dVisAtt= new G4VisAttributes(G4Colour(0,1.0,0));
 
-	
-	//return physWorld; 
-	//instead, define physWorld as Private Member of g4GeometryConstruction
-	//class and access there... why not? 
+  
+  //return physWorld; 
+  //instead, define physWorld as Private Member of g4GeometryConstruction
+  //class and access there... why not? 
 
 }
 
 
 void g4GeometryConstruction::SetMaxStep(G4double maxStep)
 {
-	if ((fStepLimit)&&(maxStep>0.)) fStepLimit->SetMaxAllowedStep(maxStep);
+  if ((fStepLimit)&&(maxStep>0.)) fStepLimit->SetMaxAllowedStep(maxStep);
 }
 
 
