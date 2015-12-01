@@ -74,6 +74,10 @@ G4VPhysicalVolume* g4GeometryConstruction::Construct()
 void g4GeometryConstruction::SetupGeometry() 
 {
 
+	G4double a, z;
+	G4double density;
+	G4int ncomponents, natoms;
+
   // Get nist material manager
   G4NistManager* nist = G4NistManager::Instance();
   G4Material *Air = nist->FindOrBuildMaterial("G4_AIR");
@@ -83,6 +87,22 @@ void g4GeometryConstruction::SetupGeometry()
      nist->FindOrBuildMaterial("G4_SODIUM_IODIDE");
   G4Material *Vacuum = 
      nist->FindOrBuildMaterial("G4_Galactic");
+	
+	G4Element* La = new G4Element("Lanthanum","La",z=57.,a=138.9057*g/mole);
+	G4Element* Br = new G4Element("Bromium","Br",z=35.,a=79.904*g/mole);
+	G4Element* Ce = new G4Element("Cerium","Ce",z=58.,a=140.116*g/mole);
+
+	//LaBr3
+	G4Material* LaBr3 = new G4Material("LaBr3", density = 5.07*g/cm3, ncomponents=2);
+	LaBr3->AddElement(La, natoms=1);
+	LaBr3->AddElement(Br, natoms=3);
+
+	//LaBr3_Ce
+	G4Material* LaBr3_Ce = new G4Material("LaBr3_Ce", density = 5.08*g/cm3, ncomponents=2);
+	LaBr3_Ce->AddMaterial(LaBr3, 99.5*perCent);
+	LaBr3_Ce->AddElement(Ce, 0.5*perCent);
+
+
   //G4Material *Pyrex = 
    //  nist->FindOrBuildMaterial("G4_Pyrex_Glass");
 
@@ -177,15 +197,6 @@ void g4GeometryConstruction::SetupGeometry()
   //  Sensitive Detectors
   //    
 
-	//
-	//  Large NaI
-	//
-
-  //G4String CMOSName = "g4/CMOS";
-  G4String CMOSName = "LgNaI";
-  G4VSensitiveDetector* CMOS=new g4CMOS(CMOSName,"g4CMOSHitsCollection");
-  G4SDManager::GetSDMpointer()->AddNewDetector( CMOS );
-
   //!!!!!!!!!!!!!!!! Half length Values!!!!!
   //G4double cmos_hx = 0.5 * 2.54 *cm;
   //G4double cmos_hy = 0.5 * 2.54 *cm;
@@ -197,8 +208,28 @@ void g4GeometryConstruction::SetupGeometry()
 	G4double large_pSPhi =  0.0; 
 	G4double large_pDPhi =  2.0*pi;
 
+	G4double small_pRmin = 0.0;
+	G4double small_pRmax = 0.5 * 2.54 * cm;
+	G4double small_pDz =   0.5 * 2.54 * cm;
+	G4double small_pSPhi =  0.0; 
+	G4double small_pDPhi =  2.0*pi;
+
+	G4double labr3_pRmin = 0.0;
+	G4double labr3_pRmax = 1.5 * 2.54 * cm;
+	G4double labr3_pDz =   1.5 * 2.54 * cm;
+	G4double labr3_pSPhi =  0.0; 
+	G4double labr3_pDPhi =  2.0*pi;
+
+	//
+	//  Large Plastic (5"x5")
+	//
+
+  //G4String CMOSName = "g4/CMOS";
+  G4VSensitiveDetector* LgPl=new g4CMOS("LgPl","LgPlHitsCollection");
+  G4SDManager::GetSDMpointer()->AddNewDetector( LgPl );
+
   //G4Material *cmos_mat = Plastic;
-  G4Material *LgNaI_mat = NaI; 
+  G4Material *LgPl_mat = Plastic; 
 
   //G4Box* solidCMOS
   //  = new G4Box("CMOS",                    //its name
@@ -206,25 +237,95 @@ void g4GeometryConstruction::SetupGeometry()
   //              cmos_hy,
   //              cmos_hz);
   
-  G4Tubs* solidCMOS
-    = new G4Tubs("LgNaI",                    //its name
+  G4Tubs* solidLgPl
+    = new G4Tubs("LgPl",                    //its name
                 large_pRmin,                //its size 
                 large_pRmax,
                 large_pDz,
                 large_pSPhi,
                 large_pDPhi);
 
-  G4LogicalVolume* logicCMOS
-    = new G4LogicalVolume(solidCMOS,       //its solid
-                          LgNaI_mat,        //its material
-                          "LgNaI");         //its name 
+  G4LogicalVolume* logicLgPl
+    = new G4LogicalVolume(solidLgPl,       //its solid
+                          LgPl_mat,        //its material
+                          "LgPl");         //its name 
 
-  logicCMOS->SetSensitiveDetector( CMOS );
+  logicLgPl->SetSensitiveDetector( LgPl );
 
       new G4PVPlacement(0,                     //no rotation
                        G4ThreeVector(0,0,0),   //translation (0,0,0)
-                        logicCMOS,             //its logical volume
-                        "LgNaI",                //its name
+                        logicLgPl,             //its logical volume
+                        "LgPl",                //its name
+                        logicEnv,              //its mother (logical) volume
+                        false,                 //no boolean operations
+                        0);//,                 //its copy number 
+                        //checkOverlaps);      //checkOverlap
+
+	//
+	//  Small Plastic (1"x1")
+	//
+
+  G4VSensitiveDetector* SmPl=new g4CMOS("SmPl","SmPlHitsCollection");
+  G4SDManager::GetSDMpointer()->AddNewDetector( SmPl );
+
+  //G4Material *cmos_mat = Plastic;
+  G4Material *SmPl_mat = Plastic; 
+
+  
+  G4Tubs* solidSmPl
+    = new G4Tubs("SmPl",                    //its name
+                small_pRmin,                //its size 
+                small_pRmax,
+                small_pDz,
+                small_pSPhi,
+                small_pDPhi);
+
+  G4LogicalVolume* logicSmPl
+    = new G4LogicalVolume(solidSmPl,       //its solid
+                          SmPl_mat,        //its material
+                          "SmPl");         //its name 
+
+  logicSmPl->SetSensitiveDetector( SmPl );
+
+      new G4PVPlacement(0,                     //no rotation
+                       G4ThreeVector(2.*2.54*cm,-3.*2.54*cm,0),   //translation (0,0,0)
+                        logicSmPl,             //its logical volume
+                        "SmPl",                //its name
+                        logicEnv,              //its mother (logical) volume
+                        false,                 //no boolean operations
+                        0);//,                 //its copy number 
+                        //checkOverlaps);      //checkOverlap
+
+	//
+	//  Lanthinum Bromide (3"x3")
+	//
+
+  G4VSensitiveDetector* MdLaBr3 = new g4CMOS("MdLaBr3","MdLaBr3HitsCollection");
+  G4SDManager::GetSDMpointer()->AddNewDetector( MdLaBr3 );
+
+  //G4Material *cmos_mat = Plastic;
+  G4Material *MdLaBr3_mat = LaBr3_Ce;
+
+  
+  G4Tubs* solidMdLaBr3
+    = new G4Tubs("MdLaBr3",                    //its name
+                labr3_pRmin,                //its size 
+                labr3_pRmax,
+                labr3_pDz,
+                labr3_pSPhi,
+                labr3_pDPhi);
+
+  G4LogicalVolume* logicMdLaBr3
+    = new G4LogicalVolume(solidMdLaBr3,      //its solid
+                          MdLaBr3_mat,       //its material
+                          "MdLaBr3");         //its name 
+
+  logicMdLaBr3->SetSensitiveDetector( MdLaBr3 );
+
+      new G4PVPlacement(0,                     //no rotation
+                       G4ThreeVector(0,-5.0*2.54*cm,0),   //translation (0,0,0)
+                        logicMdLaBr3,             //its logical volume
+                        "MdLaBr3",                //its name
                         logicEnv,              //its mother (logical) volume
                         false,                 //no boolean operations
                         0);//,                 //its copy number 
@@ -234,18 +335,25 @@ void g4GeometryConstruction::SetupGeometry()
   // sets a max step length in the tracker region
 
   //G4double maxStep = cmos_hx/2;
-  G4double maxStep = large_pDz/16;
+  G4double maxStep = small_pDz/16;
   fStepLimit = new G4UserLimits(maxStep); 
-  logicCMOS->SetUserLimits(fStepLimit);
+  logicSmPl->SetUserLimits(fStepLimit);
+  logicLgPl->SetUserLimits(fStepLimit);
+  logicMdLaBr3->SetUserLimits(fStepLimit);
 
   //set colours of regions
-  G4VisAttributes* aVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,0.0));
-  logicCMOS->SetVisAttributes(aVisAtt);
-  G4VisAttributes* bVisAtt= new G4VisAttributes(G4Colour(0,0,1.0));
+  G4VisAttributes* LgPlVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,0.0));
+  logicLgPl->SetVisAttributes(LgPlVisAtt);
+  G4VisAttributes* SmPlVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,0.0));
+  logicSmPl->SetVisAttributes(SmPlVisAtt);
+  G4VisAttributes* LaBr3VisAtt= new G4VisAttributes(G4Colour(1.0,1.0,0.0));
+  logicMdLaBr3->SetVisAttributes(LaBr3VisAtt);
+  //G4VisAttributes* bVisAtt= new G4VisAttributes(G4Colour(0,0,1.0));
+  G4VisAttributes* bVisAtt= new G4VisAttributes(G4Colour(0,0,0.0));
   logicEnv->SetVisAttributes(bVisAtt);
-  G4VisAttributes* cVisAtt= new G4VisAttributes(G4Colour(1.0,0.0,0.0));
+  //G4VisAttributes* cVisAtt= new G4VisAttributes(G4Colour(1.0,0.0,0.0));
+  G4VisAttributes* cVisAtt= new G4VisAttributes(G4Colour(0.0,0.0,0.0));
   logicWorld->SetVisAttributes(cVisAtt);
-  //G4VisAttributes* dVisAtt= new G4VisAttributes(G4Colour(0,1.0,0));
 
   
   //return physWorld; 
