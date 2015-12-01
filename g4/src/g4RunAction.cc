@@ -47,22 +47,24 @@ using namespace CLHEP;
 
 g4RunAction::g4RunAction()
 {
-	fout.open("CMOS_RunSummary.txt"); 
-	fout << setw(6) << "run"
-       << setw(13) << "N Events"
-       << setw(13) << "Edep_Tot"
-       << setw(13) << "Edep_e-"
-       << setw(13) << "Edep_e+"
-       << setw(13) << "Edep_gamma"
-       << setw(10) << "N_e-"
-       << setw(10) << "N_compt" 
-       << setw(10) << "N_phot"
-       << setw(10) << "N_msce-"
-       << setw(10) << "N_e+"
-       << setw(10) << "N_pair"
-       << setw(10) << "N_msce+"
-       << setw(14) << "N_gamma"
-       << setw(10) << "N_xgamma" << endl;
+	// open summary file
+	//char summary_file[50];
+	//fout.open("CMOS_RunSummary.txt"); 
+	//fout << setw(6) << "run"
+  //     << setw(13) << "N Events"
+  //     << setw(13) << "Edep_Tot"
+  //     << setw(13) << "Edep_e-"
+  //     << setw(13) << "Edep_e+"
+  //     << setw(13) << "Edep_gamma"
+  //     << setw(10) << "N_e-"
+  //     << setw(10) << "N_compt" 
+  //     << setw(10) << "N_phot"
+  //     << setw(10) << "N_msce-"
+  //     << setw(10) << "N_e+"
+  //     << setw(10) << "N_pair"
+  //     << setw(10) << "N_msce+"
+  //     << setw(14) << "N_gamma"
+  //     << setw(10) << "N_xgamma" << endl;
 
 }
 
@@ -80,6 +82,27 @@ void g4RunAction::BeginOfRunAction(const G4Run* aRun)
 {
  
   G4cout << "### Run " << aRun->GetRunID() << " start." << G4endl;
+
+	G4cout << g4CMOS::Instance()->GetName().data() << G4endl;
+	char summary_file[50];
+	sprintf(summary_file, "%s_RunSummary.out", g4CMOS::Instance()->GetName().data());	
+	fout.open(summary_file);
+
+	fout << setw(6) << "run"
+       << setw(13) << "N Events"
+       << setw(13) << "Edep_Tot"
+       << setw(13) << "Edep_e-"
+       << setw(13) << "Edep_e+"
+       << setw(13) << "Edep_gamma"
+       << setw(10) << "N_e-"
+       << setw(10) << "N_compt" 
+       << setw(10) << "N_phot"
+       << setw(10) << "N_msce-"
+       << setw(10) << "N_e+"
+       << setw(10) << "N_pair"
+       << setw(10) << "N_msce+"
+       << setw(14) << "N_gamma"
+       << setw(10) << "N_xgamma" << endl;
 
 #ifdef G4VIS_USE
   if (G4VVisManager::GetConcreteInstance())
@@ -187,22 +210,34 @@ void g4RunAction::EndOfRunAction(const G4Run* aRun)
          << endl << endl
 				 << "Number of Events in Run: "
 				 << NumberOfEvents << endl
+
          << "Energy Deposited in CMOS: "
          << TotEdep/MeV << " MeV" << endl
 				 << "Energy from Electrons: "
          << TotElectronEdep/MeV << " MeV" << endl
 				 << "Energy from Photons: "
          << TotGammaEdep/MeV << " MeV" << endl
+				 << "Energy from Positrons: "
+         << TotPositronEdep/MeV << " MeV" << G4endl
+
 				 << "Number of Electrons: " 
-         << NTotElectron << endl
+         << NTotElectron << G4endl
 				 << "Number of Compton Electrons: " 
-         << NTotComptonElectron << endl
+         << NTotComptonElectron << G4endl
 				 << "Number of Photo Electrons: " 
-         << NTotPhotoElectron << endl
+         << NTotPhotoElectron << G4endl
+				 << "Number of Positrons: "
+         << NTotPositron << G4endl
+
+				 << "Number of msc Electrons interactions: " 
+         << NTotMscElectron << G4endl
+
 				 << "Number of Incident Photons "
          << NTotIncidentGamma << endl
+
 				 << "Number of Interacting Photons "
          << NTotInteractingGamma << endl << endl;
+
 
 	//reset g4CMOS values
 	g4CMOS::Instance()->Reset();

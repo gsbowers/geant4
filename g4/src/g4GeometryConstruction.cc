@@ -174,11 +174,15 @@ void g4GeometryConstruction::SetupGeometry()
   //world volume a physical envelope volume has been placed.
 
   //
-  //  Silicon detector for S5K5CAG - Sensitive Detector
+  //  Sensitive Detectors
   //    
 
-  // sensitive detectors
-  G4String CMOSName = "g4/CMOS";
+	//
+	//  Large NaI
+	//
+
+  //G4String CMOSName = "g4/CMOS";
+  G4String CMOSName = "LgNaI";
   G4VSensitiveDetector* CMOS=new g4CMOS(CMOSName,"g4CMOSHitsCollection");
   G4SDManager::GetSDMpointer()->AddNewDetector( CMOS );
 
@@ -194,7 +198,7 @@ void g4GeometryConstruction::SetupGeometry()
 	G4double large_pDPhi =  2.0*pi;
 
   //G4Material *cmos_mat = Plastic;
-  G4Material *cmos_mat = Plastic;
+  G4Material *LgNaI_mat = NaI; 
 
   //G4Box* solidCMOS
   //  = new G4Box("CMOS",                    //its name
@@ -203,7 +207,7 @@ void g4GeometryConstruction::SetupGeometry()
   //              cmos_hz);
   
   G4Tubs* solidCMOS
-    = new G4Tubs("CMOS",                    //its name
+    = new G4Tubs("LgNaI",                    //its name
                 large_pRmin,                //its size 
                 large_pRmax,
                 large_pDz,
@@ -212,15 +216,15 @@ void g4GeometryConstruction::SetupGeometry()
 
   G4LogicalVolume* logicCMOS
     = new G4LogicalVolume(solidCMOS,       //its solid
-                          cmos_mat,        //its material
-                          "CMOS");         //its name 
+                          LgNaI_mat,        //its material
+                          "LgNaI");         //its name 
 
   logicCMOS->SetSensitiveDetector( CMOS );
 
       new G4PVPlacement(0,                     //no rotation
                        G4ThreeVector(0,0,0),   //translation (0,0,0)
                         logicCMOS,             //its logical volume
-                        "CMOS",                //its name
+                        "LgNaI",                //its name
                         logicEnv,              //its mother (logical) volume
                         false,                 //no boolean operations
                         0);//,                 //its copy number 

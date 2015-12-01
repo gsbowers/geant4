@@ -40,7 +40,9 @@ g4CMOS::g4CMOS(const G4String& name,
 	fgInstance = this;
 
 	// open data file
-	fout.open("CMOS_Hits.out");
+	char hits_file[50];
+	sprintf(hits_file, "%s_Hits.out", name.data());	
+	fout.open(hits_file);
 	fout << setw(8) << "event"
        << setw(6) << "hit" 
        << setw(12) << "particle"
@@ -164,7 +166,7 @@ void g4CMOS::EndOfEvent(G4HCofThisEvent*)
 		}
 
 		// print hits to file
-		/*fout << setw(8) << evtNb 
+		fout << setw(8) << evtNb 
          << setw(6) << i
          << setw(12) << pd->GetParticleName()
          << setw(12) << KE/keV
@@ -172,7 +174,6 @@ void g4CMOS::EndOfEvent(G4HCofThisEvent*)
 				 << setw(16) << aHit->GetProcessName()
 				 << setw(12) << aHit->GetPos()
          << endl;
-		*/
 	}
 
 	//if (fTotEdep > 0) cout << endl << fTotEdep << endl;
