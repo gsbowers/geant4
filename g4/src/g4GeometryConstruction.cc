@@ -78,16 +78,6 @@ void g4GeometryConstruction::SetupGeometry()
 	G4double density;
 	G4int ncomponents, natoms;
 
-  // Get nist material manager
-  G4NistManager* nist = G4NistManager::Instance();
-  G4Material *Air = nist->FindOrBuildMaterial("G4_AIR");
-  G4Material *Plastic = 
-     nist->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
-  G4Material *NaI = 
-     nist->FindOrBuildMaterial("G4_SODIUM_IODIDE");
-  G4Material *Vacuum = 
-     nist->FindOrBuildMaterial("G4_Galactic");
-	
 	G4Element* La = new G4Element("Lanthanum","La",z=57.,a=138.9057*g/mole);
 	G4Element* Br = new G4Element("Bromium","Br",z=35.,a=79.904*g/mole);
 	G4Element* Ce = new G4Element("Cerium","Ce",z=58.,a=140.116*g/mole);
@@ -102,30 +92,42 @@ void g4GeometryConstruction::SetupGeometry()
 	LaBr3_Ce->AddMaterial(LaBr3, 99.5*perCent);
 	LaBr3_Ce->AddElement(Ce, 0.5*perCent);
 
-
+  // Get nist material manager
+  G4NistManager* nist = G4NistManager::Instance();
+  G4Material *Air = nist->FindOrBuildMaterial("G4_AIR");
+  G4Material *Plastic = 
+     nist->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
+  G4Material *NaI = 
+     nist->FindOrBuildMaterial("G4_SODIUM_IODIDE");
+  G4Material *Vacuum = 
+     nist->FindOrBuildMaterial("G4_Galactic");
+  G4Material *Aluminum = 
+     nist->FindOrBuildMaterial("G4_Al");
+	
   //G4Material *Pyrex = 
    //  nist->FindOrBuildMaterial("G4_Pyrex_Glass");
 
   //option to swtich on/off checking of volume overlaps
   G4bool checkOverlaps = false;
 
-  // Envelope size
-  G4double env_hx = 20.*cm;
-  G4double env_hy = 20.*cm;
-  G4double env_hz = 20.*cm;
+	// Aircraft Shell size
+	G4double shell_pRmax = 100.0 * cm;
+	G4double shell_pRmin = 90.0 * cm;
+	G4double shell_pSPhi = 0; 
+	G4double shell_pDPhi = 2.0*pi;
+	G4double shell_pSTheta = 0; 
+	G4double shell_pDTheta = 1.0*pi;
 
-  G4double env_pRmax = 100.*cm;
+	// World Size
+  G4double world_pRmax = 1.2 * shell_pRmax;
+
+  // Envelope size
+  G4double env_pRmax = shell_pRmin;
 
   //
   // World
   //
 
-  G4double world_hx = 1.2*env_hx;
-  G4double world_hy = 1.2*env_hy;
-  G4double world_hz = 1.2*env_hz;
-
-  G4double world_pRmax = 1.2 * env_pRmax;
-  
   //G4Material* world_mat = Air;
   G4Material* world_mat = Vacuum;
 
@@ -163,12 +165,6 @@ void g4GeometryConstruction::SetupGeometry()
   G4Material *env_mat = Vacuum;
   //G4Material *env_mat = Air;
 
-  //G4Box* solidEnv
-  //  = new G4Box("Envelope",                //its name
-  //              env_hx,                    //its size 
-  //              env_hy,
-  //              env_hz);
-
   G4Orb* solidEnv
     = new G4Orb("Envelope",                //its name
                 env_pRmax);                //its size 
@@ -192,6 +188,38 @@ void g4GeometryConstruction::SetupGeometry()
 
   //a physical world volume has been created and within that 
   //world volume a physical envelope volume has been placed.
+
+  //
+  //  Aircraft and surronding shell material
+  //  
+
+  G4Material *shell_mat = Aluminum;
+  //G4Material *env_mat = Air;
+
+  G4Sphere* solidShell
+    = new G4Sphere("Shell",                 //its name
+                shell_pRmin,                //dimensions  
+                shell_pRmax,
+                shell_pSPhi,
+                shell_pDPhi,
+                shell_pSTheta,
+                shell_pDTheta);               
+
+  G4LogicalVolume* logicShell
+    = new G4LogicalVolume(solidShell,       //its solid
+                          shell_mat,        //its material
+                          "Shell");         //its name 
+
+
+  //G4VPhysicalVolume* physEnv = 
+      new G4PVPlacement(0,                 //no rotation
+                        G4ThreeVector(),   //translation (0,0,0)
+                        logicShell,        //its logical volume
+                        "Shell",           //its name
+                        logicWorld,        //its mother (logical) volume
+                        false,             //no boolean operations
+                        0,                 //its copy number 
+                        checkOverlaps);    //checkOverlap
 
   //
   //  Sensitive Detectors
@@ -344,9 +372,9 @@ void g4GeometryConstruction::SetupGeometry()
   //set colours of regions
   G4VisAttributes* LgPlVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,0.0));
   logicLgPl->SetVisAttributes(LgPlVisAtt);
-  G4VisAttributes* SmPlVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,0.0));
+  G4VisAttributes* SmPlVisAtt= new G4VisAttributes(G4Colour(1.0,0.0,0.0));
   logicSmPl->SetVisAttributes(SmPlVisAtt);
-  G4VisAttributes* LaBr3VisAtt= new G4VisAttributes(G4Colour(1.0,1.0,0.0));
+  G4VisAttributes* LaBr3VisAtt= new G4VisAttributes(G4Colour(1.0,0.0,1.0));
   logicMdLaBr3->SetVisAttributes(LaBr3VisAtt);
   //G4VisAttributes* bVisAtt= new G4VisAttributes(G4Colour(0,0,1.0));
   G4VisAttributes* bVisAtt= new G4VisAttributes(G4Colour(0,0,0.0));
@@ -354,6 +382,9 @@ void g4GeometryConstruction::SetupGeometry()
   //G4VisAttributes* cVisAtt= new G4VisAttributes(G4Colour(1.0,0.0,0.0));
   G4VisAttributes* cVisAtt= new G4VisAttributes(G4Colour(0.0,0.0,0.0));
   logicWorld->SetVisAttributes(cVisAtt);
+
+  G4VisAttributes* dVisAtt= new G4VisAttributes(G4Colour(0.0,0.0,1.0));
+  logicShell->SetVisAttributes(dVisAtt);
 
   
   //return physWorld; 
