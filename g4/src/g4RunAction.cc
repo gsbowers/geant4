@@ -48,23 +48,22 @@ using namespace CLHEP;
 g4RunAction::g4RunAction()
 {
 	// open summary file
-	//char summary_file[50];
-	//fout.open("CMOS_RunSummary.txt"); 
-	//fout << setw(6) << "run"
-  //     << setw(13) << "N Events"
-  //     << setw(13) << "Edep_Tot"
-  //     << setw(13) << "Edep_e-"
-  //     << setw(13) << "Edep_e+"
-  //     << setw(13) << "Edep_gamma"
-  //     << setw(10) << "N_e-"
-  //     << setw(10) << "N_compt" 
-  //     << setw(10) << "N_phot"
-  //     << setw(10) << "N_msce-"
-  //     << setw(10) << "N_e+"
-  //     << setw(10) << "N_pair"
-  //     << setw(10) << "N_msce+"
-  //     << setw(14) << "N_gamma"
-  //     << setw(10) << "N_xgamma" << endl;
+	fout.open("RunSummary.txt"); 
+	fout << setw(6) << "run"
+       << setw(13) << "N Events"
+       << setw(13) << "Edep_Tot"
+       << setw(13) << "Edep_e-"
+       << setw(13) << "Edep_e+"
+       << setw(13) << "Edep_gamma"
+       << setw(10) << "N_e-"
+       << setw(10) << "N_compt" 
+       << setw(10) << "N_phot"
+       << setw(10) << "N_msce-"
+       << setw(10) << "N_e+"
+       << setw(10) << "N_pair"
+       << setw(10) << "N_msce+"
+       << setw(14) << "N_gamma"
+       << setw(10) << "N_xgamma" << endl;
 
 }
 
@@ -82,27 +81,6 @@ void g4RunAction::BeginOfRunAction(const G4Run* aRun)
 {
  
   G4cout << "### Run " << aRun->GetRunID() << " start." << G4endl;
-
-	G4cout << g4CMOS::Instance()->GetName().data() << G4endl;
-	char summary_file[50];
-	sprintf(summary_file, "%s_RunSummary.out", g4CMOS::Instance()->GetName().data());	
-	fout.open(summary_file);
-
-	fout << setw(6) << "run"
-       << setw(13) << "N Events"
-       << setw(13) << "Edep_Tot"
-       << setw(13) << "Edep_e-"
-       << setw(13) << "Edep_e+"
-       << setw(13) << "Edep_gamma"
-       << setw(10) << "N_e-"
-       << setw(10) << "N_compt" 
-       << setw(10) << "N_phot"
-       << setw(10) << "N_msce-"
-       << setw(10) << "N_e+"
-       << setw(10) << "N_pair"
-       << setw(10) << "N_msce+"
-       << setw(14) << "N_gamma"
-       << setw(10) << "N_xgamma" << endl;
 
 #ifdef G4VIS_USE
   if (G4VVisManager::GetConcreteInstance())

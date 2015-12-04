@@ -8,6 +8,7 @@
 #include "G4ThreeVector.hh"
 #include "G4SDManager.hh"
 #include "G4ios.hh"
+#include "G4EventManager.hh"
 
 #include <iostream>
 #include <fstream>
@@ -122,7 +123,7 @@ void g4CMOS::EndOfEvent(G4HCofThisEvent*)
 	G4ParticleDefinition *pd;
 	G4double Edep;
 	G4double KE;
-	G4int evtNb = GetCurrentEventID();
+	G4int evtNb = Instance()->GetCurrentEventID();
 
 	for ( G4int i=0; i<nofHits; i++ ){
 
