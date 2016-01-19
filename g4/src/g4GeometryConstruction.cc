@@ -108,18 +108,21 @@ void g4GeometryConstruction::SetupGeometry()
    //  nist->FindOrBuildMaterial("G4_Pyrex_Glass");
 
   //option to swtich on/off checking of volume overlaps
-  G4bool checkOverlaps = false;
+  G4bool checkOverlaps = true;
 
 	// Aircraft Shell size
-	G4double shell_pRmax = 100.0 * cm;
-	G4double shell_pRmin = 90.0 * cm;
+  G4Material *shell_mat = Aluminum;
+
+	G4double shell_pRmax = 90.0 * cm;
+	G4double shell_pRmin = (90.0 - 3.9) * cm;
 	G4double shell_pSPhi = 0; 
 	G4double shell_pDPhi = 2.0*pi;
 	G4double shell_pSTheta = 0; 
 	G4double shell_pDTheta = 1.0*pi;
 
 	// World Size
-  G4double world_pRmax = 1.2 * shell_pRmax;
+  //G4double world_pRmax = 1.2*shell_pRmax;
+  G4double world_pRmax = 100.0 * cm;
 
   // Envelope size
   G4double env_pRmax = shell_pRmin;
@@ -193,8 +196,7 @@ void g4GeometryConstruction::SetupGeometry()
   //  Aircraft and surronding shell material
   //  
 
-  G4Material *shell_mat = Aluminum;
-  //G4Material *env_mat = Air;
+  //G4Material *shell_mat = Aluminum;
 
   G4Sphere* solidShell
     = new G4Sphere("Shell",                 //its name
@@ -281,7 +283,7 @@ void g4GeometryConstruction::SetupGeometry()
   logicLgPl->SetSensitiveDetector( LgPl );
 
       new G4PVPlacement(0,                     //no rotation
-                       G4ThreeVector(0,0,0),   //translation (0,0,0)
+                       G4ThreeVector(0,-3.5*2.54*cm,0),   //translation (0,0,0)
                         logicLgPl,             //its logical volume
                         "LgPl",                //its name
                         logicEnv,              //its mother (logical) volume
@@ -316,7 +318,7 @@ void g4GeometryConstruction::SetupGeometry()
   logicSmPl->SetSensitiveDetector( SmPl );
 
       new G4PVPlacement(0,                     //no rotation
-                       G4ThreeVector(2.*2.54*cm,-3.*2.54*cm,0),   //translation (0,0,0)
+                       G4ThreeVector(-1.*2.54*cm,0.5*2.54*cm,3.5*2.54*cm),   //translation (0,0,0)
                         logicSmPl,             //its logical volume
                         "SmPl",                //its name
                         logicEnv,              //its mother (logical) volume
@@ -351,7 +353,7 @@ void g4GeometryConstruction::SetupGeometry()
   logicMdLaBr3->SetSensitiveDetector( MdLaBr3 );
 
       new G4PVPlacement(0,                     //no rotation
-                       G4ThreeVector(0,-5.0*2.54*cm,0),   //translation (0,0,0)
+                       G4ThreeVector(0,3.5*2.54*cm,1*2.54*cm),   //translation (0,0,0)
                         logicMdLaBr3,             //its logical volume
                         "MdLaBr3",                //its name
                         logicEnv,              //its mother (logical) volume
