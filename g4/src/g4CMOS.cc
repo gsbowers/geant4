@@ -125,6 +125,14 @@ void g4CMOS::EndOfEvent(G4HCofThisEvent*)
 	G4double KE;
 	G4int evtNb = Instance()->GetCurrentEventID();
 
+	//track total energy deposited for event 
+	G4double EdepEvt = 0;
+
+	//if TrackHits = 1, 
+	//track edep at hit level, else
+	//track edep at event level
+	G4int TrackHits = 0;
+
 	for ( G4int i=0; i<nofHits; i++ ){
 
 		g4CMOSHit *aHit = (*fHitsCollection)[i];
@@ -133,6 +141,9 @@ void g4CMOS::EndOfEvent(G4HCofThisEvent*)
 		Edep = aHit->GetEdep();
 		KE = aHit->GetKE(); 
 		fTotEdep += Edep;
+
+		// track energy deposited for this event
+		EdepEvt += Edep;
 
 		// get particle definition
 		pd = aHit->GetParticleDefinition();
@@ -166,7 +177,8 @@ void g4CMOS::EndOfEvent(G4HCofThisEvent*)
 			if (Edep > 0) fNTotInteractingGamma += 1;
 		}
 
-		// print hits to file
+		// print hit information to file
+		if (TrackHits){
 		fout << setw(8) << evtNb 
          << setw(6) << i
          << setw(12) << pd->GetParticleName()
@@ -175,6 +187,17 @@ void g4CMOS::EndOfEvent(G4HCofThisEvent*)
 				 << setw(16) << aHit->GetProcessName()
 				 << setw(12) << aHit->GetPos()
          << endl;
+		} 
+
+	}
+
+	// print event information to file
+	if (!TrackHits){
+		if (EdepEvt > 0){
+		fout << setw(8) << evtNb 
+   	    << setw(12) << EdepEvt/keV
+   	    << endl;
+		}
 	}
 
 	//if (fTotEdep > 0) cout << endl << fTotEdep << endl;

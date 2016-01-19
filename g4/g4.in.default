@@ -1,0 +1,21 @@
+# focused beam
+#
+/gps/verbose 0
+
+/control/execute macros/display.mac
+/control/verbose 2
+/hits/verbose 1
+
+/gps/pos/type Beam
+/gps/direction 1. 0. 0.
+
+/gps/ene/type Mono 
+/gps/particle e-
+
+/gps/pos/centre -5. 0. 0. cm
+
+#0
+/gps/ene/ezero 7.3 MeV
+/gps/ene/min 20 keV
+/gps/ene/max 40 MeV
+/run/beamOn 500000000

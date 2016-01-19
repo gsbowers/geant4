@@ -6,16 +6,17 @@
 /control/verbose 2
 /hits/verbose 1
 
-/gps/pos/type Beam
-/gps/direction 1. 0. 0.
+/gps/pos/type Surface
+/gps/pos/shape Sphere
+/gps/pos/centre 0. 0. 0. cm
+/gps/pos/radius 50.0 cm
+/gps/ang/type iso
 
-/gps/ene/type Mono 
-/gps/particle e-
+/gps/particle gamma
+/gps/ene/type User
+/gps/hist/type energy
 
-/gps/pos/centre -5. 0. 0. cm
+/gps/ang/mintheta 0 deg
+/gps/ang/maxtheta 90 deg
 
-#0
-/gps/ene/ezero 7.3 MeV
-/gps/ene/min 20 keV
-/gps/ene/max 40 MeV
-/run/beamOn 500000000
+/gps/beamOn 500000000
