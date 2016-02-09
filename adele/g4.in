@@ -1,0 +1,22 @@
+# focused beam
+#
+/gps/verbose 0
+
+/control/execute macros/display.mac
+/control/verbose 2
+/hits/verbose 1
+
+/gps/pos/type Surface
+/gps/pos/shape Sphere
+/gps/pos/centre 0. 0. 0. cm
+/gps/pos/radius 50.0 cm
+/gps/ang/type iso
+
+/gps/particle gamma
+/gps/ene/type User
+/gps/hist/type energy
+
+/gps/ang/mintheta 0 deg
+/gps/ang/maxtheta 90 deg
+
+/gps/beamOn 500000000
