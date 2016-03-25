@@ -1,9 +1,9 @@
 In general, follow installation guide at 
 http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/InstallationGuide/html/ 
 
-My final geant4 directory sturcture is 
+My final geant4 directory sturcture on SOL is 
 
-   +- ~/geant4 
+   +- /usr/local/geant4 
        +- geant4.10.02/
        +- geant4.10.02-build/
        +- geant4.10.02-install/
@@ -31,8 +31,8 @@ create next to directory 'calibration' the directory 'calibration-build'
 
 in calibration-build do 
 
-:source ~/geant4/geant4.10.01.p02-install/bin/geant4.sh
-:cmake -DGeant4_DIR=~/geant4/geant4.10.02-install/lib/Geant4-10.02/ ../calibration
+:source /usr/local/geant4/geant4.10.01.p02-install/bin/geant4.sh
+:cmake -DGeant4_DIR=/usr/local/geant4/geant4.10.02-install/lib/Geant4-10.02/ ../calibration
 :make
 
 4.)  Simulation specified in g4.in.  To run
@@ -41,7 +41,7 @@ in calibration-build do
 
 :./run 
 
-5.)  Troubleshooting
+5.)  Troubleshooting (on SOL)
 
 if during make you get error 
 
@@ -66,6 +66,6 @@ general-build.  do
 :mkdir general-build
 :cd general-build
 :scl enable devtoolset-2 bash
-:source ~/geant4/geant4.10.01.p02-install/bin/geant4.sh
-:cmake -DGeant4_DIR=~/geant4/geant4.10.02-install/lib/Geant4-10.02/ ../calibration
+:source /usr/local/geant4/geant4.10.01.p02-install/bin/geant4.sh
+:cmake -DGeant4_DIR=/usr/local/geant4/geant4.10.02-install/lib/Geant4-10.02/ ../calibration
 :make 
